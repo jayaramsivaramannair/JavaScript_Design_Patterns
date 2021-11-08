@@ -1,39 +1,58 @@
-const fetchData = async (searchTerm) => {
-  const response = await axios.get('http://www.omdbapi.com/', {
-    params: {
-      apikey: '4bbade0b',
-      s: searchTerm,
+
+  const fetchData = async (searchTerm) => {
+    const response = await axios.get('http://www.omdbapi.com/', {
+      params: {
+        apikey: '4bbade0b',
+        s: searchTerm,
+      }
+    });
+  
+    //If the search does not yield any results, then simply return an empty array
+    if(response.data.Error) {
+      return [];
     }
-  });
-  console.log(response.data);
-}
+  
+    return response.data.Search;
+  }
+  
+  const root = document.querySelector('.autocomplete');
+  
+  root.innerHTML = `
+    <label><b>Search For a Movie</b></label>
+    <input class="input" />
+    <div class="dropdown">
+      <div class="dropdown-menu">
+        <div class="dropdown-content results"></div>
+      </div>
+    </div>
+  `;
+  
 
+  const dropdown = document.querySelector('.dropdown');
+  const resultsWrapper = document.querySelector('.results');
+  const input = document.querySelector('.input');
 
-const input = document.querySelector('input');
-
-//Debounce is a function which returns a function.
-const debounce = (cb, delay = 500) => {
-  let timeoutId;
-  return (...args) => {
-    //While entering the function, if the timerID is already set then clear it and set a new timer
-    if(timeoutId) {
-      clearTimeout(timeoutId);
-    }
-
-    //This is the timeout function which will fetch movies after 1000 milliseconds has elapsed
-    //Once the user stops typing, the final timer will run after 1000 milliseconds and fetch the movies
-    timeoutId = setTimeout(() => {
-      //Take each argument passed into the function and pass them separately into the callback function
-      cb.apply(null, args);
-    }, delay)
+  
+  //This is the call back function which will be passed into the event listener on input
+  const onInput = async (event) => {
+      const movies = await fetchData(event.target.value);
+  
+      dropdown.classList.add('is-active');
+      for(let movie of movies) {
+        const option = document.createElement('a');
+        //Backticks are required instead of single quotes for multi-line strings
+        option.classList.add('dropdown-item');
+        option.innerHTML = `
+          <img src="${movie.Poster}"/>
+          ${movie.Title}
+        `;
+        
+        resultsWrapper.appendChild(option);
+      }
   };
-}
+  
+
+  input.addEventListener('input', debounce(onInput, 1000));
+  
 
 
-//This is the call back function which will be passed into the event listener on input
-const onInput = (event) => {
-    fetchData(event.target.value);
-};
-
-
-input.addEventListener('input', debounce(onInput, 1000));
