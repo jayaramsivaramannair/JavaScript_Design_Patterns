@@ -36,6 +36,11 @@
   //This is the call back function which will be passed into the event listener on input
   const onInput = async (event) => {
       const movies = await fetchData(event.target.value);
+
+      if(!movies.length) {
+        dropdown.classList.remove('is-active');
+        return;
+      }
   
       resultsWrapper.innerHTML = '';
       dropdown.classList.add('is-active');
