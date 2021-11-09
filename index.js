@@ -56,6 +56,13 @@
   
 
   input.addEventListener('input', debounce(onInput, 1000));
+
+  document.addEventListener('click', event => {
+    //If the click is not on the input or the dropdown menu, then close the dropdown menu
+    if (!root.contains(event.target)) {
+      dropdown.classList.remove('is-active');
+    }
+  })
   
 
 
